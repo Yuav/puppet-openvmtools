@@ -114,9 +114,17 @@ class openvmtools (
   case $::virtual {
     'vmware': {
       if $supported {
+        exec { 'uninstall-vmware-tools':
+          path    => ['/usr/local/sbin', '/usr/local/bin', '/usr/sbin', '/usr/bin', '/sbin', '/bin'],
+          command => '/usr/bin/vmware-uninstall-tools.pl || exit 0',
+          onlyif  => 'ls /usr/bin/vmware-uninstall-tools.pl',
+        }
+      
         package { $package_name :
           ensure => $package_ensure,
+          require => Exec['uninstall-vmware-tools'],
         }
+        
         if $with_desktop {
           package { $desktop_package_name :
             ensure => $package_ensure,
